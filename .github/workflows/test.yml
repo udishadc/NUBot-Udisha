@@ -1,0 +1,22 @@
+name: "nu_bot_test"
+
+on:
+  push:
+    branches:
+      - main
+      - NuDev
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout-code
+        uses: actions/checkout@v4
+
+      - name: install python
+        uses: actions/setup-python@v5
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install .
+      - run: echo "run successfully"
