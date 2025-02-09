@@ -9,3 +9,12 @@ Instant responses to academic-related queries.
 Scalable and efficient system for handling high query volumes.
 
 Continuous updates via cloud deployment.
+
+# setup
+
+- add dependencies in **pyproject.toml** under _dependencies_ array
+  run
+
+```
+pip install .
+```
