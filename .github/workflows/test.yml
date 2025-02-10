@@ -3,20 +3,25 @@ name: "nu_bot_test"
 on:
   push:
     branches:
-      - main
-      - NuDev
+      - "**"
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: checkout-code
         uses: actions/checkout@v4
+      - run: echo "copied repository"
 
       - name: install python
         uses: actions/setup-python@v5
+      - run: echo "Setup python"
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install .
-      - run: echo "run successfully"
+      - run: echo "run pip and install dependencies"
+        if: success()
+      - run: echo "pipeline run sucessfully"
+        if: failure()
+      - run: echo "error during pipeline"
