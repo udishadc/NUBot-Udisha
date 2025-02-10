@@ -18,3 +18,15 @@ Continuous updates via cloud deployment.
 ```
 pip install .
 ```
+
+## Backend
+
+- to run backend service
+
+go to root dir **NUBot** then run
+
+```python
+python -m src.backend.api
+```
+
+now backend will run in [localhost:5000](localhost:5000)
