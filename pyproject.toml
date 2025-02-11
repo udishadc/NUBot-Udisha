@@ -11,7 +11,8 @@ dependencies = [
     "numpy",
     "flask",
     "gunicorn",
-    "flask_restx"
+    "flask_restx",
+    "python-dotenv"
 ]
 requires-python = ">= 3.8"
 keywords = ["nu_bot","Nubot"]

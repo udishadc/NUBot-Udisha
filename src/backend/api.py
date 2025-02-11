@@ -1,7 +1,11 @@
 
 from flask import Flask
 from flask_restx import Api, Resource # type: ignore
-from src.logger import logging
+from backend.logger import logging
+from dotenv import load_dotenv
+from backend.exception import CustomException
+import sys
+load_dotenv()
 
 
 app =Flask(__name__)
@@ -16,9 +20,11 @@ ns=api.namespace("NuBot",descrption="namespace for Backend")
 class Main(Resource):
     def get(self):
         """Return a simple message"""
-        logging.info("Get api called")
-        return {'message': 'Hello, World!'}
-    
+        try:
+            logging.info("Get api called")
+            return {'message': 'Hello, World!'}
+        except Exception as e:
+            raise CustomException(e,sys)
 
 if __name__=="__main__":
     app.run(debug=True)
