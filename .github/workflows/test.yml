@@ -1,0 +1,35 @@
+name: "nu_bot_test"
+
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - run: echo "Copied repository"
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12" # Use stable version
+
+      - run: echo "Setup Python"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install .
+
+      - name: Success Message
+        if: success()
+        run: echo "Pipeline ran successfully"
+
+      - name: Error Message
+        if: failure()
+        run: echo "Error during pipeline"
