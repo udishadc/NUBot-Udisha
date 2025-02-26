@@ -1,1 +1,14 @@
 pandas
+flask
+gunicorn
+flask-restx
+python-dotenv
+requests
+beautifulsoup4
+datasets
+torch
+faiss-cpu
+apache-airflow
+numpy
+transformers
+sentence-transformers
