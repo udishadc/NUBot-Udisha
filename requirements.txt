@@ -12,3 +12,4 @@ apache-airflow
 numpy
 transformers
 sentence-transformers
+dvc
