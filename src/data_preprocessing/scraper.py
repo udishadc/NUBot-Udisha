@@ -8,87 +8,74 @@ from urllib.parse import urljoin, urlparse
 
 # Configuration
 BASE_URL = 'https://www.khoury.northeastern.edu/'
-MAX_DEPTH = 3             # Maximum recursion depth (base URL is depth 0)
-CONCURRENT_REQUESTS = 10  # Maximum number of concurrent requests
-
-# Create folder for JSON data
 DATA_FOLDER = "scraped_data"
+URL_LIST_FILE = os.path.join(DATA_FOLDER, "urls_to_scrape.json")
+MAX_DEPTH = 3
+CONCURRENT_REQUESTS = 10
+
+# Ensure data folder exists
 if not os.path.exists(DATA_FOLDER):
     os.makedirs(DATA_FOLDER)
 
 def safe_filename(url):
-    """Generates a filename based on the URL path."""
     parsed = urlparse(url)
     path = parsed.path.strip('/') or 'index'
     filename = re.sub(r'[^A-Za-z0-9_\-]', '_', path) + ".json"
     return os.path.join(DATA_FOLDER, filename)
 
-async def fetch(session, url, semaphore):
-    """Fetch the content of the URL asynchronously."""
+async def fetch(session, url):
     try:
-        async with semaphore:
-            async with session.get(url) as response:
-                if response.status != 200:
-                    print(f"Failed to retrieve {url} (status: {response.status})")
-                    return None
-                return await response.text()
-    except Exception as e:
-        print(f"Error fetching {url}: {e}")
+        async with session.get(url) as response:
+            if response.status != 200:
+                return None
+            return await response.text()
+    except Exception:
         return None
 
-async def async_scrape(url, depth=0, session=None, semaphore=None):
-    """Recursively scrape pages asynchronously and store in JSON format."""
-    if depth > MAX_DEPTH:
-        return
+async def collect_urls():
+    """Scrapes BASE_URL for internal links and stores them."""
+    async with aiohttp.ClientSession() as session:
+        html = await fetch(session, BASE_URL)
+        if not html:
+            return
+        soup = BeautifulSoup(html, 'html.parser')
+        urls = set()
+        for link in soup.find_all('a', href=True):
+            next_url = urljoin(BASE_URL, link['href']).split('#')[0]
+            if urlparse(next_url).netloc == urlparse(BASE_URL).netloc:
+                urls.add(next_url)
+        with open(URL_LIST_FILE, 'w') as f:
+            json.dump(list(urls), f)
 
-    # Check if already scraped
-    filename = safe_filename(url)
-    if os.path.exists(filename):
-        return
+def collect_urls_task():
+    """Wrapper for Airflow task."""
+    asyncio.run(collect_urls())
 
-    print(f"Scraping (depth {depth}): {url}")
-    
-    html = await fetch(session, url, semaphore)
-    if html is None:
+async def scrape_url(url, session):
+    """Scrapes a single URL and saves the content."""
+    html = await fetch(session, url)
+    if not html:
         return
-
-    # Parse HTML and extract text
     soup = BeautifulSoup(html, 'html.parser')
-
-    # Remove script, style, and navigation elements
     for tag in soup(["script", "style", "nav", "footer"]):
         tag.decompose()
-
-    title = soup.title.string.strip() if soup.title else "No Title"
     text = soup.get_text(separator="\n", strip=True)
-
-    # Save structured data to JSON
-    page_data = {
-        "url": url,
-        "title": title,
-        "text": text
-    }
-
-    with open(filename, 'w', encoding='utf-8') as f:
+    page_data = {"url": url, "text": text}
+    with open(safe_filename(url), 'w', encoding='utf-8') as f:
         json.dump(page_data, f, indent=4)
 
-    # Extract and follow internal links
-    tasks = []
-    for link in soup.find_all('a', href=True):
-        next_url = urljoin(url, link['href'])
-        if urlparse(next_url).netloc == urlparse(BASE_URL).netloc:
-            next_url = next_url.split('#')[0]  # Remove fragments
-            tasks.append(async_scrape(next_url, depth + 1, session, semaphore))
+async def scrape_all_urls():
+    """Reads URLs from file and scrapes them asynchronously."""
+    if not os.path.exists(URL_LIST_FILE):
+        return
+    with open(URL_LIST_FILE) as f:
+        urls = json.load(f)
+    async with aiohttp.ClientSession() as session:
+        await asyncio.gather(*(scrape_url(url, session) for url in urls))
 
-    if tasks:
-        await asyncio.gather(*tasks)
+def scrape_all_urls_task():
+    """Wrapper for Airflow task."""
+    asyncio.run(scrape_all_urls())
 
-# async def main():
-#     # Create a semaphore to limit concurrent requests
-#     semaphore = asyncio.Semaphore(CONCURRENT_REQUESTS)
-#     async with aiohttp.ClientSession() as session:
-#         await async_scrape(BASE_URL, depth=0, session=session, semaphore=semaphore)
-#     print("Scraping complete.")
-
-# if __name__ == '__main__':
-#     asyncio.run(main())
+if __name__=="__main__":
+    scrape_all_urls_task()

@@ -1,42 +1,35 @@
-from airflow.decorators import dag, task
-from airflow.utils.dates import days_ago
-import asyncio
-import os
-import sys
-import aiohttp
-from src.data_preprocessing.scraper import async_scrape, BASE_URL ,CONCURRENT_REQUESTS
-# from src.data_preprocessing.train_model import trainModel
-sys.path.append("/opt/airflow")
-@dag(
-   
-    start_date=days_ago(1),
-    catchup=False,
-    tags=['web_scraping']
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime, timedelta
+from src.data_preprocessing.scraper import collect_urls_task,  scrape_all_urls_task
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'start_date': datetime(2024, 2, 26),
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+}
+
+dag = DAG(
+    'web_scraper_dag',
+    default_args=default_args,
+    description='A DAG to scrape and save website data',
+    schedule_interval=timedelta(days=1),
 )
-def web_scraper_dag():
-    
-    @task
-    def run_web_scraper():
-        async def main():
-            visited = set()
-            semaphore = asyncio.Semaphore(CONCURRENT_REQUESTS)
-            async with aiohttp.ClientSession() as session:
-                await async_scrape(BASE_URL, depth=0, session=session, semaphore=semaphore)
-            return len(visited)
-        
-        return asyncio.run(main())
-    # @task
-    # def train_model_task():
-    #     """Runs the FAISS vector database training process."""
-    #     trainModel()
-    #     return "Model training complete."
 
-    # Define task dependencies
-    scraping_task = run_web_scraper()
-    
 
-    # Ensure model training runs only after scraping completes
-    scraping_task 
-   
 
-dag = web_scraper_dag()
+task_collect_urls = PythonOperator(
+    task_id='collect_urls',
+    python_callable=collect_urls_task,
+    dag=dag,
+)
+
+task_scrape_urls = PythonOperator(
+    task_id='scrape_urls',
+    python_callable=scrape_all_urls_task,
+    dag=dag,
+)
+
+task_collect_urls >> task_scrape_urls
