@@ -1,1 +1,8 @@
 pandas
+faiss-cpu
+numpy
+beautifulsoup4
+sentence-transformers
+aiohttp
+flask
+dotenv
