@@ -1,7 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from src.data_preprocessing.scraper import collect_urls_task,  scrape_all_urls_task
+from src.data_preprocessing.scraper import  scrape_and_load_task 
 
 default_args = {
     'owner': 'airflow',
@@ -20,16 +20,10 @@ dag = DAG(
 
 
 
-task_collect_urls = PythonOperator(
-    task_id='collect_urls',
-    python_callable=collect_urls_task,
-    dag=dag,
-)
-
 task_scrape_urls = PythonOperator(
     task_id='scrape_urls',
-    python_callable=scrape_all_urls_task,
+    python_callable=scrape_and_load_task,
     dag=dag,
 )
 
-task_collect_urls >> task_scrape_urls
+task_scrape_urls

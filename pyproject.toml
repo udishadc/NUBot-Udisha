@@ -19,7 +19,8 @@ dependencies = [
     "transformers",
     "torch",
     "faiss-cpu",
-    "apache-airflow>=2.10.5"
+    "apache-airflow>=2.10.5",
+    "prefect"
 ]
 requires-python = ">= 3.8"
 keywords = ["nu_bot","Nubot"]

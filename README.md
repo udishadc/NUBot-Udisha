@@ -165,8 +165,60 @@ Once completed, follow the standard Git workflow.
 
 On successful execution, the DAG status will appear as follows:
 
-![DAG Successful Run](./assets/dag_success.png)
+![DAG Successful Run](./assets/dag_scucces.png)
 
 ```
 
 ```
+
+# Prefect Workflow Setup
+
+## Installation
+
+To install Prefect with all dependencies, run:
+
+```sh
+pip install -U prefect[all]
+```
+
+## Running Prefect Server
+
+Start the Prefect UI server on port 4200 by running:
+
+```sh
+prefect server start
+```
+
+Once started, access the UI at: [http://localhost:4200](http://localhost:4200)
+
+## Running the Workflow
+
+Run the DAG script in `src/prefectWorflows` using one of the following commands:
+
+```sh
+python scraper_flow.py
+# OR
+python -m src.prefectWorflows.scraper_flow
+```
+
+After execution, refresh the Prefect UI at `http://localhost:4200` to see the running DAG.
+
+## Important Notes
+
+- Unlike Airflow, tools such as Prefect and Dagster do **not** automatically detect workflows.
+- Workflows need to be triggered manually.
+- For multiple workflows, combine all flows in a single file and register them to Prefect Cloud.
+
+## Deploying to Prefect Cloud
+
+To deploy and run workflows anywhere, first log in to Prefect Cloud:
+
+```sh
+prefect cloud login
+```
+
+Then, register the flows and deploy them accordingly.
+
+---
+
+By following these steps, you can efficiently run and manage your Prefect workflows both locally and in the cloud.
