@@ -13,3 +13,4 @@ numpy
 transformers
 sentence-transformers
 dvc
+prefect
