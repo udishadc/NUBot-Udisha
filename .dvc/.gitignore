@@ -1,3 +1,5 @@
 /config.local
 /tmp
 /cache
+/venv
+/scraped_data.dvc
