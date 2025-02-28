@@ -19,8 +19,14 @@ def load_json_files():
     for file_path in file_paths:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            documents.append(data["text"])
-            metadata.append({"url": data["url"], "title": data["title"]})
+            if isinstance(data, dict):
+                documents.append(data.get("text", ""))
+                metadata.append({
+                    "url": data.get("url", "No URL"),
+                    "title": data.get("title", "No Title")
+                })
+            else:
+                print(f"Skipping file {file_path} as it does not contain a dictionary at the top level.")
     
     return documents, metadata
 
