@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 # log files are created with month day,year,time
-LOG_FILE=f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}.log"
+LOG_FILE=f"{datetime.now().strftime('%m_%d_%Y_%H_%M_%S')}_data.log"
 #every file name gets added into  logs folder
 logs_path=os.path.join(os.getcwd(),"logs")
 # even though there is a file in that folder keep on adding hte new log files 
