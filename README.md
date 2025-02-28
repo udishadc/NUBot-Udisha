@@ -1,5 +1,3 @@
-Here's the reformatted README for your **NUBot** project:
-
 ````markdown
 # NUBot: Retrieval-Augmented Generation (RAG) Chatbot
 
@@ -9,7 +7,7 @@ NUBot is an intelligent chatbot designed to assist students and visitors with qu
 
 Before setting up the project, install the Python debugger extension in VS Code:
 
-- [Python debugger extension](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy)
+- [Python Debugger Extension](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy)
 
 ## Features
 
@@ -17,7 +15,11 @@ Before setting up the project, install the Python debugger extension in VS Code:
 - Scalable and efficient system for handling high query volumes.
 - Continuous updates via cloud deployment.
 
+---
+
 ## Setup
+
+### Installing Dependencies
 
 1. Add dependencies in the `pyproject.toml` under the `_dependencies_` array.
 2. Run the following command to install them:
@@ -27,9 +29,11 @@ Before setting up the project, install the Python debugger extension in VS Code:
    ```
 ````
 
-## Backend
+---
 
-To run the backend service:
+## Backend Setup
+
+To run the backend service, choose one of the following methods:
 
 ### Option 1: Using Python Command
 
@@ -69,10 +73,100 @@ To run the backend service:
 
 The backend will now be running at [http://localhost:5000](http://localhost:5000).
 
+---
+
+## Airflow Setup
+
+### Initial Setup (First-Time or After Changes)
+
+1. Install and open Docker.
+2. Run the following command to build the project:
+
+   ```bash
+   docker compose build
+   ```
+
+   This will copy/mount the entire repository to Docker to resolve import errors.
+
+3. Initialize Airflow:
+
+   ```bash
+   docker compose up airflow-init
+   ```
+
+   The cursor will stop at `airflow-init exited`. Press **Enter** or any key to continue.
+
+4. Start Airflow:
+
+   ```bash
+   docker compose up
+   ```
+
+   Wait until the **curl** request appears.
+
+5. Open a browser and navigate to `localhost:8080`.
+6. Locate the DAG **"web_scraping"**, run it, and wait until the status shows **Success** (dark green color).
+
+   - This DAG scrapes a webpage and stores the data in JSON format.
+
+### Stopping Airflow
+
+To stop Airflow, open a new terminal and run:
+
+```bash
+docker compose down
 ```
 
-### Key Updates:
-- Organized the content for better readability.
-- Consistently formatted code blocks and commands.
-- Clearer headings for each section.
+### Running Airflow from the Second Time Onwards
+
+1. Start in detached mode:
+
+   ```bash
+   docker compose up -d
+   ```
+
+2. Run:
+
+   ```bash
+   docker compose up
+   ```
+
+---
+
+## DVC (Data Version Control) Setup
+
+### Initializing DVC
+
+If DVC is not initialized, run:
+
+```bash
+dvc init
+```
+
+### Tracking Scraped Data
+
+1. Add tracking to JSON files:
+
+   ```bash
+   dvc add scraped_data/
+   ```
+
+2. Track changes with Git:
+
+   ```bash
+   git add .gitignore scraped_data.dvc
+   ```
+
+Once completed, follow the standard Git workflow.
+
+---
+
+## Successful DAG Run Output
+
+On successful execution, the DAG status will appear as follows:
+
+![DAG Successful Run](./assets/dag_success.png)
+
+```
+
 ```
