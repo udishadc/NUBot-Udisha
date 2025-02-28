@@ -21,6 +21,7 @@ def scraperflow():
 
 if __name__ == "__main__":
 # # Run the flow
+## for cloud
 #      scraperflow.serve(name="my-first-deployment",
 #                       tags=["onboarding"],
 #                       interval=60)
