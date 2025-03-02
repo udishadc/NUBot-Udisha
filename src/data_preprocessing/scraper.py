@@ -27,7 +27,7 @@ async def fetch(session, url, semaphore):
     """Fetch the content of the URL asynchronously."""
     try:
         async with semaphore:
-            async with session.get(url) as response:
+            async with session.get(url,ssl=False) as response:
                 if response.status != 200:
                     print(f"Failed to retrieve {url} (status: {response.status})")
                     return None
