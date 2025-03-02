@@ -1,12 +1,11 @@
 
 from flask import Flask
-from flask_restx import Api, Resource,fields # type: ignore
-from backend.logger import logging
+from flask_restx import Api, Resource,fields,reqparse # type: ignore
+from src.backend.logger import logging
 from dotenv import load_dotenv
-from flask_restx import reqparse
 
 
-from backend.exception import CustomException
+from src.backend.exception import CustomException
 import sys
 
 from src.model.rag_model import generate_response

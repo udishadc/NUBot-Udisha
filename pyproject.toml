@@ -19,7 +19,9 @@ dependencies = [
     "transformers",
     "torch",
     "faiss-cpu",
-    "prefect"
+    "prefect",
+    "streamlit",
+    "sentence-transformers"
 ]
 requires-python = ">= 3.8"
 keywords = ["nu_bot","Nubot"]
