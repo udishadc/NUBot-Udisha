@@ -19,7 +19,7 @@ dependencies = [
     "transformers",
     "torch",
     "faiss-cpu",
-    "prefect"
+    "prefect",
     "streamlit"
     "sentence-transformers"
 ]
