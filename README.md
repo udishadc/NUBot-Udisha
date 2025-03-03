@@ -42,7 +42,9 @@ Before setting up the project, install the necessary dependencies and software.
 
 ### Step 4: Install Dependencies
 1. Navigate to the cloned repository directory.
-2. Run the following command to install all necessary dependencies:
+2. If you encounter metadata generation issues, visit rustup.rs, copy the suggested command, and run it in your terminal.
+   As rust might be required for sentence transformers or airflow
+3. Run the following command to install all necessary dependencies:
    ```sh
    pip install .
    ```
