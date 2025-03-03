@@ -114,7 +114,9 @@ Prefect is platform-independent (Windows, macOS, Linux) and lightweight.
    ```
 3. This runs the scraping workflow, which can be monitored in Prefect UI.
 
-### Step 9: Automating Workflow Execution
+if run succesfully it will show as below
+![prefect success flow](./assets/prefect.png)
+### Step 9(optional): Automating Workflow Execution
 1. Prefect flows run manually by default.
 2. After deployment, you can schedule the workflow using Prefect Cloud.
 
@@ -194,7 +196,7 @@ docker compose down
 To install Prefect with all dependencies, run:
 
 ```sh
-pip install -U prefect[all]
+pip install -U prefect
 ```
 
 ### Running Prefect Server
