@@ -37,7 +37,7 @@ Before setting up the project, install the necessary dependencies and software.
 1. Open a terminal.
 2. Clone the Git repository:
    ```sh
-   git clone <gitlink>
+   git clone <https://github.com/udishadc/NUBot>
    ```
 
 ### Step 4: Install Dependencies
