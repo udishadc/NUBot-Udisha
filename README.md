@@ -1,13 +1,15 @@
-````markdown
 # NUBot: Retrieval-Augmented Generation (RAG) Chatbot
 
 NUBot is an intelligent chatbot designed to assist students and visitors with queries related to Northeastern University, such as courses, faculty, co-op opportunities, and more. It utilizes a Retrieval-Augmented Generation (RAG) approach to provide instant, accurate responses.
 
 ## Prerequisites
 
-Before setting up the project, install the Python debugger extension in VS Code:
+Before setting up the project, install the necessary dependencies and software.
 
-- [Python Debugger Extension](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy)
+- Install the Python debugger extension in VS Code:
+  - [Python Debugger Extension](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy)
+
+---
 
 ## Features
 
@@ -17,61 +19,126 @@ Before setting up the project, install the Python debugger extension in VS Code:
 
 ---
 
-## Setup
+## Setup Steps
 
-### Installing Dependencies
+### Step 1: Install Ollama Software
+1. Download Ollama software.
+2. Install the software on your system.
 
-1. Add dependencies in the `pyproject.toml` under the `_dependencies_` array.
-2. Run the following command to install them:
+### Step 2: Set Up the Model
+1. Open a terminal or command prompt.
+2. Run the following command:
+   ```sh
+   ollama pull mistral
+   ```
+   This will download the model locally.
 
-   ```bash
+### Step 3: Clone the Repository
+1. Open a terminal.
+2. Clone the Git repository:
+   ```sh
+   git clone <gitlink>
+   ```
+
+### Step 4: Install Dependencies
+1. Navigate to the cloned repository directory.
+2. Run the following command to install all necessary dependencies:
+   ```sh
    pip install .
    ```
-````
 
 ---
 
-## Backend Setup
+## Running the Backend
 
-To run the backend service, choose one of the following methods:
-
-### Option 1: Using Python Command
-
-1. Go to the root directory of **NUBot**.
-2. Run the following command:
-
-   ```bash
+### Step 5: Start the Backend Service
+1. Open a terminal.
+2. Run one of the following commands:
+   ```sh
    python -m src.backend.api
    ```
+   or
+   ```sh
+   python3 -m src.backend.api
+   ```
+   This starts the backend service using Flask.
 
-### Option 2: For Linux/macOS (Terminal)
+---
 
-1. Open the terminal in the **NUBot** directory.
-2. Set the environment variable and start the Flask server:
+## Running the Frontend
 
-   ```bash
-   export FLASK_APP=src.backend.api
-   flask run
+### Step 6: Start the Frontend Service
+1. Open another terminal.
+2. Run the following command:
+   ```sh
+   streamlit run src/frontend/app.py
+   ```
+3. Open a browser and navigate to:
+   ```sh
+   localhost:8501
+   ```
+   This will launch the frontend interface.
+4. Enter a query and wait for the response.
+
+---
+
+## Running the DAG
+
+### Airflow (Not Recommended)
+1. Airflow requires Docker and takes too long to run.
+2. To install and run Airflow:
+   - Install Docker.
+   - Follow Airflow setup steps.
+3. Airflow can only run the DAG flow for web scraping but will not create embeddings for the corpus.
+
+### Prefect (Recommended)
+Prefect is platform-independent (Windows, macOS, Linux) and lightweight.
+
+### Step 7: Start the Prefect Server
+1. Open a terminal.
+2. Run the following command:
+   ```sh
+   prefect server start
+   ```
+3. Open a browser and navigate to:
+   ```sh
+   localhost:4200
+   ```
+   This opens the Prefect UI to monitor the workflows.
+
+### Step 8: Run the Workflow
+1. Open another terminal.
+2. Execute the flow file:
+   ```sh
+   python -m src.prefectWorkflows.scraper_flow
+   ```
+3. This runs the scraping workflow, which can be monitored in Prefect UI.
+
+### Step 9: Automating Workflow Execution
+1. Prefect flows run manually by default.
+2. After deployment, you can schedule the workflow using Prefect Cloud.
+
+---
+
+## Testing the Flows
+
+### Step 10: Running Test Cases
+1. Open a terminal.
+2. Run the following command to test the scraper workflow:
+   ```sh
+   python -m unittest tests.test_scraper_flow
+   ```
+3. Run the following command to test the preprocessing of data:
+   ```sh
+   python -m unittest tests.test_preprocess_data
    ```
 
-### Option 3: For Windows (Command Prompt)
+### Modules Used for Testing
+- **unittest**: A built-in Python testing framework used for writing and running test cases.
+- **mock**: Part of Python’s `unittest.mock` module, used to simulate dependencies and isolate test cases.
+- **MagicMock**: A powerful feature of `mock` that allows the simulation of objects, methods, and their return values during testing.
 
-1. Open the terminal in the **NUBot** directory.
-2. Set the environment variable and start the Flask server:
-
-   ```bash
-   set FLASK_APP=src.backend.api
-   flask run
-   ```
-
-### Option 4: Running via VS Code (Run and Debug)
-
-1. Open **Run and Debug** in VS Code.
-2. Click on the **Run** button to start the backend.
-
-![Run and Debug](./assets/image.png)
-
-The backend will now be running at [http://localhost:5000](http://localhost:5000).
+These tests help ensure the correctness of data preprocessing and workflow execution in the pipeline.
 
 ---
 
@@ -81,39 +148,26 @@ The backend will now be running at [http://localhost:5000](http://localhost:5000
 
 1. Install and open Docker.
 2. Run the following command to build the project:
-
-   ```bash
+   ```sh
    docker compose build
    ```
-
-   This will copy/mount the entire repository to Docker to resolve import errors.
-
 3. Initialize Airflow:
-
-   ```bash
+   ```sh
    docker compose up airflow-init
    ```
-
-   The cursor will stop at `airflow-init exited`. Press **Enter** or any key to continue.
-
 4. Start Airflow:
-
-   ```bash
+   ```sh
    docker compose up
    ```
-
-   Wait until the **curl** request appears.
-
 5. Open a browser and navigate to `localhost:8080`.
 6. Locate the DAG **"web_scraping"**, run it, and wait until the status shows **Success** (dark green color).
-
-   - This DAG scrapes a webpage and stores the data in JSON format.
 
 ### Stopping Airflow
 
 To stop Airflow, open a new terminal and run:
 
-```bash
+```sh
+
 docker compose down
 ```
 
@@ -121,59 +175,21 @@ docker compose down
 
 1. Start in detached mode:
 
-   ```bash
+   ```sh
    docker compose up -d
    ```
 
 2. Run:
 
-   ```bash
+   ```sh
    docker compose up
    ```
 
 ---
 
-## DVC (Data Version Control) Setup
+## Prefect Workflow Setup
 
-### Initializing DVC
-
-If DVC is not initialized, run:
-
-```bash
-dvc init
-```
-
-### Tracking Scraped Data
-
-1. Add tracking to JSON files:
-
-   ```bash
-   dvc add scraped_data/
-   ```
-
-2. Track changes with Git:
-
-   ```bash
-   git add .gitignore scraped_data.dvc
-   ```
-
-Once completed, follow the standard Git workflow.
-
----
-
-## Successful DAG Run Output
-
-On successful execution, the DAG status will appear as follows:
-
-![DAG Successful Run](./assets/dag_scucces.png)
-
-```
-
-```
-
-# Prefect Workflow Setup
-
-## Installation
+### Installation
 
 To install Prefect with all dependencies, run:
 
@@ -181,7 +197,7 @@ To install Prefect with all dependencies, run:
 pip install -U prefect[all]
 ```
 
-## Running Prefect Server
+### Running Prefect Server
 
 Start the Prefect UI server on port 4200 by running:
 
@@ -191,25 +207,19 @@ prefect server start
 
 Once started, access the UI at: [http://localhost:4200](http://localhost:4200)
 
-## Running the Workflow
+### Running the Workflow
 
-Run the DAG script in `src/prefectWorflows` using one of the following commands:
+Run the DAG script in `src/prefectWorkflows` using one of the following commands:
 
 ```sh
 python scraper_flow.py
 # OR
-python -m src.prefectWorflows.scraper_flow
+python -m src.prefectWorkflows.scraper_flow
 ```
 
 After execution, refresh the Prefect UI at `http://localhost:4200` to see the running DAG.
 
-## Important Notes
-
-- Unlike Airflow, tools such as Prefect and Dagster do **not** automatically detect workflows.
-- Workflows need to be triggered manually.
-- For multiple workflows, combine all flows in a single file and register them to Prefect Cloud.
-
-## Deploying to Prefect Cloud
+### Deploying to Prefect Cloud
 
 To deploy and run workflows anywhere, first log in to Prefect Cloud:
 
@@ -221,4 +231,5 @@ Then, register the flows and deploy them accordingly.
 
 ---
 
-By following these steps, you can efficiently run and manage your Prefect workflows both locally and in the cloud.
+By following these steps, you can efficiently run, test, and manage your Prefect workflows both locally and in the cloud.
+
