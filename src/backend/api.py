@@ -27,6 +27,9 @@ query_model = api.model('QueryModel', {
 @ns.route("/")
 class Main(Resource):
     @api.expect(query_model)
+    @api.response(200, "Success")
+    @api.response(404, "Not Found")
+    @api.response(500, "Internal Server Error")
     def post(self):
         """Return a simple message"""
         try:
@@ -34,10 +37,14 @@ class Main(Resource):
             args=parser.parse_args()
             logging.info("Get api called")
             query=args['query']
+            logging.info("response function called")
             response=generate_response(query)
+            logging.info("Response generated successfully")
             return response
         except Exception as e:
-            raise CustomException(e,sys)
+            logging.error("Custom exception occurred: %s", str(e))
+            return jsonify({"error": "An internal server error occurred", "details": str(e)})
+           
 
 if __name__=="__main__":
     app.run(debug=True)
