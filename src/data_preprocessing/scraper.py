@@ -86,9 +86,11 @@ async def async_scrape(url, depth=0, session=None, semaphore=None):
 async def scrape_and_load():
     """Main function to initiate scraping."""
     semaphore = asyncio.Semaphore(CONCURRENT_REQUESTS)
-    async with aiohttp.ClientSession() as session:
-        await async_scrape(BASE_URL, depth=0, session=session, semaphore=semaphore)
-    print("Scraping complete.")
+    urls=list(BASE_URL.split(','))
+    for url in urls:
+        async with aiohttp.ClientSession() as session:
+            await async_scrape(BASE_URL, depth=0, session=session, semaphore=semaphore)
+        print(f"Scraping {url} complete.")
 
 def scrape_and_load_task():
     return asyncio.run(scrape_and_load())
