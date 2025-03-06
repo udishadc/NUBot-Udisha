@@ -6,18 +6,17 @@ from prefect.client.schemas.schedules import CronSchedule
 
 load_dotenv()
 GIT_URL=os.getenv('GIT_URL')
-print(GIT_URL)
 @flow()
 def all_flows():
     scraperflow()
 if __name__ == "__main__":
 # # Run the flow
     flow.from_source(
-        source='.',
+        source=GIT_URL,
         entrypoint="workflows.py:all_flows"
     ).deploy(
         name="etl-managed-flow",
         work_pool_name="my-managed-pool",
-        reference="main",
+        reference="gcp_connection-nuBot",
         schedule=CronSchedule(cron="0 9 * * 6", timezone="UTC")
     )
