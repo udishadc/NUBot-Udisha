@@ -14,14 +14,14 @@ def trainModel_task():
 @flow()
 def scraperflow():
     # Use the tasks within the flow
-    scrape_all_urls_task()
-    trainModel_task(wait_for=[scrape_all_urls_task])
+    scrape_task=scrape_all_urls_task()
+    trainModel_task()
 
 if __name__ == "__main__":
 # # Run the flow
 ## for cloud
-#      scraperflow.serve(name="my-first-deployment",
-#                       tags=["onboarding"],
-#                       interval=60)
+    #  scraperflow.serve(name="my-first-deployment",
+    #                   tags=["onboarding"],
+    #                   )
 
     scraperflow()

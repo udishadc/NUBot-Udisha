@@ -21,7 +21,8 @@ dependencies = [
     "faiss-cpu",
     "prefect",
     "streamlit",
-    "sentence-transformers"
+    "sentence-transformers",
+    "dvc-gs"
 ]
 requires-python = ">= 3.8"
 keywords = ["nu_bot","Nubot"]

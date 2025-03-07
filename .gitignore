@@ -167,10 +167,13 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+.dvc/config
+
 # PyPI configuration file
 .pypirc
 
 *.html
 
 *.json
-/scraped_data
+/vector_index.faiss
+/metadata.pkl

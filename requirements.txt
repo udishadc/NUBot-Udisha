@@ -14,3 +14,4 @@ transformers
 sentence-transformers
 dvc
 prefect
+dvc-gs

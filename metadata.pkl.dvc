@@ -1,0 +1,5 @@
+outs:
+- md5: 1cca995773e75f947fd89d72c642166b
+  size: 2969787
+  hash: md5
+  path: metadata.pkl

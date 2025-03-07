@@ -43,13 +43,13 @@ def create_vector_database(documents):
     try:
         model = SentenceTransformer("all-MiniLM-L6-v2")
         embeddings = model.encode(documents, convert_to_numpy=True)
-        loggin.info("vector embeddings encoded successfully")
+        logging.info("vector embeddings encoded successfully")
         d = embeddings.shape[1]  # Dimension of embeddings
         index = faiss.IndexFlatL2(d)
         index.add(embeddings)
 
         faiss.write_index(index, INDEX_FILE)
-        loggin.info("vector index encoded successfully")
+        logging.info("vector index encoded successfully")
         return index, embeddings
     except Exception as e:
         logging.error("Error while createing vector database")

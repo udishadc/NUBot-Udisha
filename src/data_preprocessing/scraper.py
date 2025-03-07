@@ -5,9 +5,10 @@ import os
 import json
 import re
 from urllib.parse import urljoin, urlparse
-
+from dotenv import load_dotenv
+load_dotenv()
 # Configuration
-BASE_URL = 'https://www.khoury.northeastern.edu/'
+BASE_URL = os.getenv('BASE_URL')
 MAX_DEPTH = 3             # Maximum recursion depth (base URL is depth 0)
 CONCURRENT_REQUESTS = 10  # Maximum number of concurrent requests
 
@@ -89,7 +90,7 @@ async def scrape_and_load():
     urls=list(BASE_URL.split(','))
     for url in urls:
         async with aiohttp.ClientSession() as session:
-            await async_scrape(BASE_URL, depth=0, session=session, semaphore=semaphore)
+            await async_scrape(url, depth=0, session=session, semaphore=semaphore)
         print(f"Scraping {url} complete.")
 
 def scrape_and_load_task():
