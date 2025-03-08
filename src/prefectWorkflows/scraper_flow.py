@@ -15,7 +15,7 @@ def trainModel_task():
 def scraperflow():
     # Use the tasks within the flow
     scrape_task=scrape_all_urls_task()
-    trainModel_task()
+    trainModel_task(wait_for=[scrape_task])
 
 if __name__ == "__main__":
 # # Run the flow
