@@ -23,6 +23,8 @@ def chunk_data():
         _ = vector_store.add_documents(documents=all_splits)
         # Save FAISS index
         vector_store.save_local('faiss_index')
+        
+        return 
     except Exception as e:
         raise Exception(e)
 
