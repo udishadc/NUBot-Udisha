@@ -15,3 +15,4 @@ sentence-transformers
 dvc
 prefect
 dvc-gs
+langchain-text-splitters

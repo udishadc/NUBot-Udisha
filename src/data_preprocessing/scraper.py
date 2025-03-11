@@ -83,6 +83,7 @@ async def async_scrape(url, depth=0, session=None, semaphore=None):
 
     if tasks:
         await asyncio.gather(*tasks)
+    
 
 async def scrape_and_load():
     """Main function to initiate scraping."""

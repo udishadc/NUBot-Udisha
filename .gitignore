@@ -175,5 +175,3 @@ cython_debug/
 *.html
 
 *.json
-/vector_index.faiss
-/metadata.pkl

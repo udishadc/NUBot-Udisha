@@ -1,5 +1,5 @@
 
-from flask import Flask
+from flask import Flask,jsonify
 from flask_restx import Api, Resource,fields,reqparse # type: ignore
 from src.backend.logger import logging
 from dotenv import load_dotenv
@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from src.backend.exception import CustomException
 import sys
 
-from src.model.rag_model import generate_response
+from src.data_preprocessing.querymodel import generateResponse
 load_dotenv()
 
 
@@ -38,7 +38,7 @@ class Main(Resource):
             logging.info("Get api called")
             query=args['query']
             logging.info("response function called")
-            response=generate_response(query)
+            response=generateResponse(query)
             logging.info("Response generated successfully")
             return response
         except Exception as e:

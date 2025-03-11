@@ -7,6 +7,7 @@ import subprocess
 import json
 from src.model.logger import logging
 from src.model.exception import CustomException
+
 import sys
 
 # Load the sentence transformer model for embeddings
@@ -14,8 +15,8 @@ logging.info("Loading sentence transformer model...")
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # FAISS index & metadata files
-INDEX_FILE = 'vector_index.faiss'
-METADATA_FILE = 'metadata.pkl'
+INDEX_FILE = 'vector_test.faiss'
+METADATA_FILE = 'metadata_test.pkl'
 
 def load_faiss_index():
     """Load the FAISS index and metadata."""

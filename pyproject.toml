@@ -22,7 +22,8 @@ dependencies = [
     "prefect",
     "streamlit",
     "sentence-transformers",
-    "dvc-gs"
+    "dvc-gs",
+    "langchain-text-splitters
 ]
 requires-python = ">= 3.8"
 keywords = ["nu_bot","Nubot"]
