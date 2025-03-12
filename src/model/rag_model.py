@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 import mlflow
 import time
 
-load_dotenv()
+load_dotenv(override=True)
 mlflow.langchain.autolog()
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 

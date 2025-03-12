@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from prefect.client.schemas.schedules import CronSchedule
 
-load_dotenv()
+load_dotenv(override=True)
 GIT_URL=os.getenv('GIT_URL')
 
 if __name__ == "__main__":

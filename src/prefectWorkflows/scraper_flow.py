@@ -14,8 +14,8 @@ def dataSegmentation():
 @flow()
 def scraperflow():
     # Use the tasks within the flow
-    scrape_task=scrape_all_urls_task()
-    dataSegmentation(wait_for=[scrape_task])
+    scrape_all_urls_task()
+    dataSegmentation()
 
 if __name__ == "__main__":
 # # Run the flow

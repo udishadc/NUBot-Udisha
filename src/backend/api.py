@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 from src.backend.exception import CustomException
 import sys
 
-from src.data_preprocessing.querymodel import generateResponse
-load_dotenv()
+from src.model.rag_model import generateResponse
+load_dotenv(override=True)
 
 
 app =Flask(__name__)
