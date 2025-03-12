@@ -27,7 +27,8 @@ dependencies = [
     "langchain-community",
     "google-cloud-storage",
     "mlflow",
-    "langchain[mistralai]"
+    "langchain[mistralai]",
+    "langgraph"
 ]
 requires-python = ">= 3.8"
 keywords = ["nu_bot","Nubot"]
