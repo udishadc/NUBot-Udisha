@@ -1,99 +1,101 @@
+from langchain import hub
+from langchain_core.documents import Document
+from langgraph.graph import START, StateGraph
+from typing_extensions import List, TypedDict
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain.chat_models import init_chat_model
+from langchain_community.vectorstores import FAISS
+import getpass
 import os
-import pickle
-import faiss
-import numpy as np
-from sentence_transformers import SentenceTransformer
-import subprocess
-import json
-from src.model.logger import logging
-from src.model.exception import CustomException
-import sys
+from dotenv import load_dotenv
+import mlflow
+import time
 
-# Load the sentence transformer model for embeddings
-logging.info("Loading sentence transformer model...")
-model = SentenceTransformer('all-MiniLM-L6-v2')
+load_dotenv()
+mlflow.langchain.autolog()
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
-# FAISS index & metadata files
-INDEX_FILE = 'vector_index.faiss'
-METADATA_FILE = 'metadata.pkl'
+if not os.environ.get("MISTRAL_API_KEY"):
+  os.environ["MISTRAL_API_KEY"] = getpass.getpass("Enter API key for Mistral AI: ")
 
-def load_faiss_index():
-    """Load the FAISS index and metadata."""
-    try:
-        logging.info("Loading FAISS index and metadata...")
-        if not os.path.exists(INDEX_FILE) or not os.path.exists(METADATA_FILE):
-            logging.error("FAISS index or metadata file not found. Please run 'process_html.py' first.")
-            raise FileNotFoundError("FAISS index or metadata file not found. Please run 'process_html.py' first.")
 
-        index = faiss.read_index(INDEX_FILE)
-        with open(METADATA_FILE, 'rb') as f:
-            data = pickle.load(f)
-        logging.info("FAISS index and metadata loaded successfully.")
-        return index, data['documents'], data['metadata']
-    except Exception as e:
-        raise CustomException(e,sys)
+# if not os.environ.get("MISTRAL_API_KEY"):
+#   os.environ["MISTRAL_API_KEY"] = getpass.getpass("Enter API key for Mistral AI: ")
+llm = init_chat_model("mistral-large-latest", model_provider="mistralai")
+# Define prompt for question-answering
+prompt = hub.pull("rlm/rag-prompt")
 
-# Load the FAISS index and documents
-index, documents, metadata = load_faiss_index()
 
-def retrieve_documents(query, top_k=3):
-    """Retrieve the most relevant documents from FAISS index."""
-    try:
-        logging.info(f"Retrieving top {top_k} relevant documents for query: {query}")
-        query_embedding = model.encode([query], convert_to_numpy=True)
+# Define state for application
+class State(TypedDict):
+    question: str
+    context: List[Document]
+    answer: str
 
-        # Search for the nearest documents
-        distances, indices = index.search(query_embedding, top_k)
-        logging.info("FAISS search completed.")
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+# Load the FAISS index
+vector_store = FAISS.load_local("faiss_index", embeddings,allow_dangerous_deserialization=True)
+# Define application steps
+def retrieve(state: State):
+    with mlflow.start_run(nested=True, run_name="retrieval"):
+        start_time = time.time()
+        retrieved_docs = vector_store.similarity_search(state["question"])
+        retrieval_time = time.time() - start_time
+    
+        # Extract only metadata
+        doc_metadata = [{"doc_id": doc.metadata.get("id", i), "source": doc.metadata.get("source", "unknown")}
+                        for i, doc in enumerate(retrieved_docs)]
         
-        results = []
-        for idx in indices[0]:
-            if idx < len(documents):
-                results.append(documents[idx])
+        # Log metadata instead of full documents
+        mlflow.log_metric("retrieval_time", retrieval_time)
+        mlflow.log_param("retrieved_docs_count", len(retrieved_docs))
+        mlflow.log_dict(doc_metadata, "retrieved_docs.json")
+
+    return {"context": retrieved_docs}
+
+def generate(state: State):
+    with mlflow.start_run(nested=True, run_name="generation"):
+        start_time = time.time()
+        docs_content = "\n\n".join(doc.page_content for doc in state["context"])
+        token_count = len(docs_content.split()) 
+        mlflow.log_param("retrieved_tokens", token_count)
+        mlflow.log_param("context_length", len(docs_content))
+        messages = prompt.invoke({"question": state["question"], "context": docs_content})
+        response = llm.invoke(messages)
+        generation_time = time.time() - start_time
         
-        logging.info(f"Retrieved {len(results)} documents.")
-        return results
-    except Exception as e:
-        raise CustomException(e,sys)
+        # Log LLM generation performance
+        mlflow.log_metric("generation_time", generation_time)
+        mlflow.log_param("response_length", len(response.content.split()))
+        mlflow.log_param("model_name", "mistral-large-latest")
 
-def generate_response(query):
-    """Retrieve relevant documents and generate an answer using a local LLM via Ollama."""
+        # Save response
+        # with open("response.txt", "w") as f:
+        #     f.write(response.content)
+        # mlflow.log_artifact("response.txt")
+
+    return {"answer": response.content}
+
+
+def generateResponse(query):
+# Compile application and test
     try:
-        logging.info(f"Generating response for query: {query}")
-        retrieved_docs = retrieve_documents(query)
-
-        # Concatenate retrieved docs as context
-        context = "\n".join(retrieved_docs)
-
-        # Prepare the prompt for LLM
-        prompt = f"Answer the following question using the given context:\n\nContext: {context}\n\nQuestion: {query}\n\nAnswer:"
-        logging.info("Prepared prompt for LLM.")
-
-        # Use Ollama to generate response from a local model like Mistral or Llama2
-        ollama_command = ["ollama", "run", "mistral", prompt]
-        logging.info("Executing Ollama command...")
-        # Ensure UTF-8 decoding to avoid UnicodeDecodeError
-        result = subprocess.run(
-            ollama_command,
-            capture_output=True,
-            text=True,
-            encoding='utf-8',  # Explicitly set UTF-8 encoding
-            errors='replace'  # Replace unsupported characters instead of crashing
-        )
-        response = result.stdout.strip()
-        logging.info("Response generated successfully.")
+         with mlflow.start_run(run_name="RAG_Pipeline"):
+            mlflow.log_param("query", query)
+            graph_builder = StateGraph(State).add_sequence([retrieve, generate])
+            graph_builder.add_edge(START, "retrieve")
+            graph = graph_builder.compile()
+            response = graph.invoke({"question": f"{query}"})
+            mlflow.log_param("final_answer", response["answer"])
+            return response["answer"]
     except Exception as e:
-        logging.error(f"Error generating response: {e}")
-        response = f"Error generating response: {e}" 
-        raise CustomException(response,sys) 
-    return response
-
-if __name__ == '__main__':
-    while True:
-        query = input("Ask a question (or type 'exit' to quit): ")
-        if query.lower() == "exit":
-            logging.info("User exited the program.")
-            break
-        logging.info(f"User query: {query}")
-        response = generate_response(query)
-        print("\nAnswer:", response, "\n")
+        mlflow.log_param("error", str(e))
+        raise Exception(e)
+    
+if __name__ == "__main__":
+    mlflow.set_tracking_uri("http://localhost:5000")  # Remote MLflow Server
+    mlflow.set_experiment("rag_experiment")
+    query=input("generate query")
+    response=generateResponse(query)
+    print(response)
