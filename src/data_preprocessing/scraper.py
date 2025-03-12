@@ -8,9 +8,9 @@ from urllib.parse import urljoin, urlparse
 from dotenv import load_dotenv
 load_dotenv()
 # Configuration
-BASE_URL = 'https://www.khoury.northeastern.edu/'
-MAX_DEPTH = 3             # Maximum recursion depth (base URL is depth 0)
-CONCURRENT_REQUESTS = 10  # Maximum number of concurrent requests
+BASE_URL = os.getenv('BASE_URL')
+MAX_DEPTH = os.getenv('MAX_DEPTH')             # Maximum recursion depth (base URL is depth 0)
+CONCURRENT_REQUESTS = os.getenv('CONCURRENT_REQUESTS')  # Maximum number of concurrent requests
 
 # Create folder for JSON data
 DATA_FOLDER = "scraped_data"
