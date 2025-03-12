@@ -23,7 +23,11 @@ dependencies = [
     "streamlit",
     "sentence-transformers",
     "dvc-gs",
-    "langchain-text-splitters
+    "langchain-text-splitters",
+    "langchain-community",
+    "google-cloud-storage",
+    "mlflow",
+    "langchain[mistralai]"
 ]
 requires-python = ">= 3.8"
 keywords = ["nu_bot","Nubot"]

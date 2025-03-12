@@ -168,6 +168,9 @@ cython_debug/
 #.idea/
 
 .dvc/config
+mlruns/
+mlflow.db
+mlflow-artifacts/
 
 # PyPI configuration file
 .pypirc
