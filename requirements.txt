@@ -20,3 +20,5 @@ langchain-community
 google-cloud-storage
 mlflow
 langchain[mistralai]
+langgraph
+langfair
