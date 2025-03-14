@@ -167,15 +167,15 @@ These tests help ensure the correctness of data preprocessing and workflow execu
 1. Install and open Docker.
 2. Run the following command to build the project:
    ```sh
-   docker compose build
+   docker compose -f 'docker-compose-airflow.yaml'  build
    ```
 3. Initialize Airflow:
    ```sh
-   docker compose up airflow-init
+   docker compose -f 'docker-compose-airflow.yaml' up airflow-init
    ```
 4. Start Airflow:
    ```sh
-   docker compose up
+   docker compose -f 'docker-compose-airflow.yaml' up
    ```
 5. Open a browser and navigate to `localhost:8080`.
 6. Locate the DAG **"web_scraping"**, run it, and wait until the status shows **Success** (dark green color).
@@ -186,7 +186,7 @@ To stop Airflow, open a new terminal and run:
 
 ```sh
 
-docker compose down
+docker compose -f 'docker-compose-airflow.yaml' down
 ```
 
 ### Running Airflow from the Second Time Onwards
@@ -194,13 +194,13 @@ docker compose down
 1. Start in detached mode:
 
    ```sh
-   docker compose up -d
+   docker compose -f 'docker-compose-airflow.yaml' up -d
    ```
 
 2. Run:
 
    ```sh
-   docker compose up
+   docker compose -f 'docker-compose-airflow.yaml' up
    ```
 
 ---

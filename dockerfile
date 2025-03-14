@@ -1,18 +1,12 @@
-# Use official Apache Airflow image
-FROM apache/airflow:2.6.0-python3.9
+FROM apache/airflow:latest-python3.8
 
-# Set working directory
-WORKDIR /opt/airflow
+USER airflow
 
-# Set Airflow user (for permissions)
-USER root
-
-
-# Copy the project files
-COPY . /opt/airflow/
-
-# Set Python path
-ENV PYTHONPATH="/opt/airflow"
-
+# Copy the requirements file and install dependencies
+COPY airflow-requirements.txt /opt/airflow/requirements.txt
+RUN pip install --no-cache-dir -r /opt/airflow/requirements.txt
 # Switch back to airflow user
 USER airflow
+
+# Set the working directory
+WORKDIR /opt/airflow

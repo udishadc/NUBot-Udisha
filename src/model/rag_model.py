@@ -10,7 +10,8 @@ import os
 from dotenv import load_dotenv
 import mlflow
 import time
-
+from langfair.auto import AutoEval
+import asyncio
 load_dotenv(override=True)
 mlflow.langchain.autolog()
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -93,9 +94,20 @@ def generateResponse(query):
         mlflow.log_param("error", str(e))
         raise Exception(e)
     
+async def checkModel_fairness():
+    auto_object = AutoEval(
+        prompts=["tell me about khoury"], 
+        langchain_llm=llm,
+        # toxicity_device=device # uncomment if GPU is available
+    )
+    results = await auto_object.evaluate()
+    print(results['metrics'])
+    
 if __name__ == "__main__":
     mlflow.set_tracking_uri("http://localhost:5000")  # Remote MLflow Server
     mlflow.set_experiment("rag_experiment")
     query=input("generate query")
     response=generateResponse(query)
     print(response)
+    #uncomment and enter prompts for model fairness and there is a limitation on api key
+    # asyncio.run(checkModel_fairness())
