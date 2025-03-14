@@ -28,7 +28,8 @@ dependencies = [
     "google-cloud-storage",
     "mlflow",
     "langchain[mistralai]",
-    "langgraph"
+    "langgraph",
+    "langfair"
 ]
 requires-python = ">= 3.8"
 keywords = ["nu_bot","Nubot"]
