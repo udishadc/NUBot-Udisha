@@ -24,7 +24,7 @@ from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 os.environ["OPENAI_API_KEY"] = ""
 

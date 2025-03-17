@@ -1,7 +1,7 @@
 # for exception handling
 
 import sys # module to manipulate the python runtime env
-from backend.logger import logging
+from src.backend.logger import logging
 
 
 def error_message_detail(error,error_detail:sys):

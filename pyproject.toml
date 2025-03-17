@@ -16,10 +16,20 @@ dependencies = [
     "requests",
     "beautifulsoup4",
     "datasets",
-    "transformers",
+    "transformers==4.48.0",
     "torch",
     "faiss-cpu",
-    "prefect"
+    "prefect",
+    "streamlit",
+    "sentence-transformers",
+    "dvc-gs",
+    "langchain-text-splitters",
+    "langchain-community",
+    "google-cloud-storage",
+    "mlflow",
+    "langchain[mistralai]",
+    "langgraph",
+    "langfair"
 ]
 requires-python = ">= 3.8"
 keywords = ["nu_bot","Nubot"]
