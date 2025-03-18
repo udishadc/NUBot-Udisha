@@ -10,7 +10,15 @@ torch
 faiss-cpu
 apache-airflow
 numpy
-transformers
+transformers==4.48.0
 sentence-transformers
 dvc
 prefect
+dvc-gs
+langchain-text-splitters
+langchain-community
+google-cloud-storage
+mlflow
+langchain[mistralai]
+langgraph
+langfair
