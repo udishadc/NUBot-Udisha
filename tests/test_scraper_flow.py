@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from src.prefectWorkflows.scraper_flow import scrape_all_urls_task, dataSegmentation, scraperflow
+from services.prefectWorkflows.scraper_flow import scrape_all_urls_task, dataSegmentation, scraperflow
 
 class TestScraperFlow(unittest.TestCase):
 

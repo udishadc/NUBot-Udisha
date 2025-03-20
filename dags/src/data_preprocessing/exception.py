@@ -1,7 +1,7 @@
 # for exception handling
 
 import sys # module to manipulate the python runtime env
-from src.data_preprocessing.logger import logging
+from services.dataflow.utils.logger import logging
 
 
 def error_message_detail(error,error_detail:sys):

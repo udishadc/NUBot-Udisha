@@ -12,10 +12,12 @@ import mlflow
 import time
 from langfair.auto import AutoEval
 import asyncio
-load_dotenv(override=True)
+load_dotenv('backend.env',override=True)
 mlflow.langchain.autolog()
+MLFLOW_TRACKING_URI =os.environ.get("MLFLOW_TRACKING_URI")
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)  # Remote MLflow Server
+mlflow.set_experiment("rag_experiment")
 if not os.environ.get("MISTRAL_API_KEY"):
   os.environ["MISTRAL_API_KEY"] = getpass.getpass("Enter API key for Mistral AI: ")
 
@@ -104,8 +106,7 @@ async def checkModel_fairness():
     print(results['metrics'])
     
 if __name__ == "__main__":
-    mlflow.set_tracking_uri("http://localhost:5000")  # Remote MLflow Server
-    mlflow.set_experiment("rag_experiment")
+
     query=input("generate query")
     response=generateResponse(query)
     print(response)
