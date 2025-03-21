@@ -6,7 +6,7 @@ import json
 import re
 from urllib.parse import urljoin, urlparse
 from dotenv import load_dotenv
-load_dotenv(override=True)
+load_dotenv('backend.env',override=True)
 # Configuration
 BASE_URL = os.getenv('BASE_URL')
 MAX_DEPTH = int(os.getenv('MAX_DEPTH'))             # Maximum recursion depth (base URL is depth 0)

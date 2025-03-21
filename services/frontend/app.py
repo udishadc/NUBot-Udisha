@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # Define the backend API URL
-API_URL = "http://127.0.0.1:5000/NuBot/"  # Update if running on a different host
+API_URL = "http://127.0.0.1:5001/NuBot"  # Update if running on a different host
 
 st.title("NuBot Chat Interface")
 st.markdown("### Ask NuBot any question!")

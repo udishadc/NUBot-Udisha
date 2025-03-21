@@ -1,8 +1,8 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from src.data_preprocessing.scraper import  scrape_and_load_task 
-from src.data_preprocessing.chunk_data import chunk_data
+from services.dataflow.scraper import  scrape_and_load_task 
+from services.dataflow.chunk_data import chunk_data
 
 default_args = {
     'owner': 'airflow',

@@ -1,15 +1,15 @@
 
 from flask import Flask,jsonify
 from flask_restx import Api, Resource,fields,reqparse # type: ignore
-from src.backend.logger import logging
+from src.utils.logger import logging
 from dotenv import load_dotenv
 
 
-from src.backend.exception import CustomException
+from src.utils.exception import CustomException
 import sys
 
-from src.model.rag_model import generateResponse
-load_dotenv(override=True)
+from src.dataflow.rag_model import generateResponse
+load_dotenv('backend/backend.env',override=True)
 
 
 app =Flask(__name__)
@@ -47,4 +47,4 @@ class Main(Resource):
            
 
 if __name__=="__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0',port=5002,debug=True)
