@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
@@ -6,6 +6,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY . .
-EXPOSE 5001
+EXPOSE 5002
+RUN chmod +x runscripts.sh
 
-CMD ["python", "main.py"]
+CMD ["bash", "./runscripts.sh"]
