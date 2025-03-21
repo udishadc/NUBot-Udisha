@@ -1,6 +1,6 @@
 from prefect import flow, task
-from src.data_preprocessing.scraper import  scrape_and_load_task 
-from src.data_preprocessing.chunk_data import chunk_data
+from src.dataflow.scraper import  scrape_and_load_task 
+from src.dataflow.chunk_data import chunk_data
 
 
 @task

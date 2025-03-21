@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+dynamic = ["version"]
+name = "nu_bot"
+readme = "README.md"
+dependencies = [
+    "pandas",
+    "numpy",
+    "flask",
+    "gunicorn",
+    "flask_restx",
+    "python-dotenv",
+    "requests",
+    "beautifulsoup4",
+    "datasets",
+    "transformers==4.48.0",
+    "torch",
+    "faiss-cpu",
+    "prefect",
+    "sentence-transformers",
+    "dvc-gs",
+    "langchain-text-splitters",
+    "langchain-community",
+    "google-cloud-storage",
+    "mlflow",
+    "langchain[mistralai]",
+    "langgraph",
+    "langfair",
+    "datetime"
+]
+requires-python = ">= 3.8"
+keywords = ["nu_bot","Nubot"]
+
+[project.urls]
+Homepage="https://github.com/udishadc/NUBot"
+Repository="https://github.com/udishadc/NUBot"
