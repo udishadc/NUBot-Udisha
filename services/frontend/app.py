@@ -1,8 +1,10 @@
 import streamlit as st
 import requests
-
+from dotenv import load_dotenv
+import os
+load_dotenv('frontend.env',override=True)
 # Define the backend API URL
-API_URL = "http://127.0.0.1:5001/NuBot"  # Update if running on a different host
+API_URL = os.getenv('API_URL')  # Update if running on a different host
 
 st.title("NuBot Chat Interface")
 st.markdown("### Ask NuBot any question!")
