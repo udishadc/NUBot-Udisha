@@ -2,7 +2,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from datasets import load_dataset
 import os
 from langchain.vectorstores import FAISS
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 
 def chunk_data():
@@ -17,7 +17,12 @@ def chunk_data():
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         all_splits = text_splitter.split_documents(docs)
         # Initialize the embedding model
-        embeddings= HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        model_name = "sentence-transformers/all-MiniLM-L6-v2"
+        model_kwargs = {'device': 'cpu'}
+        encode_kwargs = {'normalize_embeddings': False}
+        embeddings= HuggingFaceEmbeddings(model_name=model_name,
+                                          model_kwargs=model_kwargs,
+                                          encode_kwargs=encode_kwargs)
         vector_store = FAISS.from_documents(all_splits, embeddings)
         # Convert documents into FAISS-compatible format
         _ = vector_store.add_documents(documents=all_splits)

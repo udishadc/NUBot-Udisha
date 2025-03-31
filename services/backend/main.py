@@ -7,9 +7,10 @@ from dotenv import load_dotenv
 
 from src.utils.exception import CustomException
 import sys
-
+import os
 from src.dataflow.rag_model import generateResponse
-load_dotenv('backend/backend.env',override=True)
+from flask_cors import CORS # type: ignore
+load_dotenv(override=True)
 
 
 app =Flask(__name__)
@@ -17,6 +18,7 @@ app =Flask(__name__)
 # Initialize Flask-RESTX API with Swagger support
 api =Api(app, version="1.0" , title="NuBot Backend", description="Backend for NuBot")
 
+CORS(app)
 # create a namespace 
 ns=api.namespace("NuBot",descrption="namespace for Backend")
 parser = reqparse.RequestParser()
@@ -47,4 +49,6 @@ class Main(Resource):
            
 
 if __name__=="__main__":
-    app.run(host='0.0.0.0',port=5002,debug=True)
+    PORT=os.getenv('PORT')
+    HOST=os.getenv('HOST')
+    app.run(host=HOST,port=PORT,debug=True)

@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from dotenv import load_dotenv
 import os
-load_dotenv('frontend.env',override=True)
+load_dotenv(override=True)
 # Define the backend API URL
 API_URL = os.getenv('API_URL')  # Update if running on a different host
 
