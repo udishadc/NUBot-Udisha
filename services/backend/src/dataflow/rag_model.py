@@ -12,7 +12,7 @@ import mlflow
 import time
 from langfair.auto import AutoEval
 import asyncio
-load_dotenv('backend.env',override=True)
+load_dotenv(override=True)
 mlflow.langchain.autolog()
 MLFLOW_TRACKING_URI =os.environ.get("MLFLOW_TRACKING_URI")
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
