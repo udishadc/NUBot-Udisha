@@ -3,7 +3,21 @@ import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
 BUCKET_NAME= os.getenv('BUCKET_NAME')
+RAW_DATA_FOLDER= os.getenv('RAW_DATA_FOLDER')
+FAISS_INDEX_FOLDER= os.getenv('FAISS_INDEX_FOLDER')
 GOOGLE_APPLICATION_CREDENTIALS=os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+
+def get_blob_from_bucket():
+    storage_client = Client()
+    bucket = storage_client.bucket(BUCKET_NAME)
+    blobs = bucket.list_blobs()
+    for blob in blobs:
+    # Get the blob object
+        blob = bucket.blob(blob.name)
+    # Download the blob content as text (if the file is a text-based file like JSON)
+        content = blob.download_as_text()
+
+
 def upload_many_blobs_with_transfer_manager(
     workers=8
 ):
@@ -43,18 +57,23 @@ def upload_many_blobs_with_transfer_manager(
     storage_client = Client()
     bucket = storage_client.bucket(BUCKET_NAME)
     source_directory=os.path.join("..","..","scraped_data")
-    print(os.listdir(source_directory))
     filenames = [f for f in os.listdir(source_directory) if f.endswith(".json")]
     for filename in filenames:
         file_path = os.path.join(source_directory, filename)
-        blob = bucket.blob(filename)  # Create a blob (object) in the bucket
+        blob = bucket.blob(f"{RAW_DATA_FOLDER}/{filename}")  # Create a blob (object) in the bucket
+        print(f"Uploading {filename} to {bucket.name}")
         blob.upload_from_filename(file_path)  # Upload the file
 
-    # for name, result in zip(filenames, results):
-    #     # The results list is either `None` or an exception for each filename in
-    #     # the input list, in order.
 
-    #     if isinstance(result, Exception):
-    #         print("Failed to upload {} due to exception: {}".format(name, result))
-    #     else:
-    #         print("Uploaded {} to {}.".format(name, bucket.name))
+
+def upload_faiss_index_to_bucket():
+    storage_client = Client()
+    bucket = storage_client.bucket(BUCKET_NAME)
+    source_directory=os.path.join("faiss_index")
+
+    filenames = [f for f in os.listdir(source_directory) ]
+    for filename in filenames:
+        file_path = os.path.join(source_directory, filename)
+        blob = bucket.blob(f"{FAISS_INDEX_FOLDER}/{filename}")  # Create a blob (object) in the bucket
+        blob.upload_from_filename(file_path)  # Upload the file
+

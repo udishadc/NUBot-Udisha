@@ -96,7 +96,10 @@ async def scrape_and_load():
     
 
 def scrape_and_load_task():
-    return asyncio.run(scrape_and_load())
+    asyncio.run(scrape_and_load())
+    upload_many_blobs_with_transfer_manager()
+    return
+
 
 if __name__ == '__main__':
     asyncio.run(scrape_and_load())
