@@ -59,7 +59,7 @@ jobs:
       - name: Build and Push Backend Image
         run: |
           cd services/backend
-          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker-repo/backend-service:latest
+          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker/backend-service:latest
           docker build -t $IMAGE .
           docker push $IMAGE
           cd ../..
@@ -68,7 +68,7 @@ jobs:
       - name: Build and Push Frontend Image
         run: |
           cd services/frontend
-          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker-repo/frontend-service:latest
+          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker/frontend-service:latest
           docker build -t $IMAGE .
           docker push $IMAGE
           cd ../..
@@ -76,7 +76,7 @@ jobs:
       # Pull & Push MLflow Official Image
       - name: Push MLflow Image
         run: |
-          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker-repo/mlflow-service:latest
+          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker/mlflow-service:latest
           docker pull ghcr.io/mlflow/mlflow:latest
           docker tag ghcr.io/mlflow/mlflow:latest $IMAGE
           docker push $IMAGE
