@@ -1,8 +1,0 @@
-langchain-text-splitters
-datasets
-langchain-core
-langchain-community
-langchain
-datasets
-faiss-cpu
-huggingface-hub

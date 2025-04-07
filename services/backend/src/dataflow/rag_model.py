@@ -1,3 +1,4 @@
+from functools import lru_cache
 from langchain import hub
 from langchain_core.documents import Document
 from langgraph.graph import START, StateGraph
@@ -12,20 +13,30 @@ import mlflow
 import time
 from langfair.auto import AutoEval
 import asyncio
+# Load the FAISS index
+from google.cloud.storage import Client
+import tempfile
+import os
 load_dotenv(override=True)
 mlflow.langchain.autolog()
 MLFLOW_TRACKING_URI =os.environ.get("MLFLOW_TRACKING_URI")
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+FAISS_INDEX_FOLDER= os.getenv('FAISS_INDEX_FOLDER')
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)  # Remote MLflow Server
 mlflow.set_experiment("rag_experiment")
 if not os.environ.get("MISTRAL_API_KEY"):
   os.environ["MISTRAL_API_KEY"] = getpass.getpass("Enter API key for Mistral AI: ")
 
+@lru_cache(maxsize=None)
+def get_llm():
+    llm = init_chat_model("mistral-large-latest", model_provider="mistralai")
+    return llm
 
-
-llm = init_chat_model("mistral-large-latest", model_provider="mistralai")
+@lru_cache(maxsize=None)
+def get_prompt():
 # Define prompt for question-answering
-prompt = hub.pull("rlm/rag-prompt")
+    prompt = hub.pull("rlm/rag-prompt")
+    return prompt
 
 
 # Define state for application
@@ -34,10 +45,30 @@ class State(TypedDict):
     context: List[Document]
     answer: str
 
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-# Load the FAISS index
-vector_store = FAISS.load_local("faiss_index", embeddings,allow_dangerous_deserialization=True)
+@lru_cache(maxsize=None)
+def load_embeddings():
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    return embeddings
+
+
+
+# Initialize GCS client
+storage_client = Client()
+bucket=storage_client.bucket(os.getenv('BUCKET_NAME'))
+embeddings=load_embeddings()
+if not os.path.exists(FAISS_INDEX_FOLDER):
+    os.makedirs(FAISS_INDEX_FOLDER, exist_ok=True)
+# Create a temporary directory
+# Download FAISS index files from bucket to FAISS_INDEX_FOLDER directory
+for blob in bucket.list_blobs(prefix=FAISS_INDEX_FOLDER):
+    # Extract just the filename from the full path
+    filename = os.path.basename(blob.name)
+    local_path = os.path.join(FAISS_INDEX_FOLDER, filename)
+    blob.download_to_filename(local_path)
+
+# Load FAISS index from directory
+vector_store = FAISS.load_local(FAISS_INDEX_FOLDER, embeddings, allow_dangerous_deserialization=True)
 # Define application steps
 def retrieve(state: State):
     with mlflow.start_run(nested=True, run_name="retrieval"):
@@ -56,11 +87,16 @@ def retrieve(state: State):
 
     return {"context": retrieved_docs}
 
+# Initialize LLM once and store in a global variable
+llm = get_llm()
+# Initialize prompt once and store in a global variable
+prompt = get_prompt()
 def generate(state: State):
     with mlflow.start_run(nested=True, run_name="generation"):
         start_time = time.time()
         docs_content = "\n\n".join(doc.page_content for doc in state["context"])
         token_count = len(docs_content.split()) 
+        # Use the global prompt instance
         mlflow.log_param("retrieved_tokens", token_count)
         mlflow.log_param("context_length", len(docs_content))
         messages = prompt.invoke({"question": state["question"], "context": docs_content})

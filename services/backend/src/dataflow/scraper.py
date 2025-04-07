@@ -6,12 +6,14 @@ import json
 import re
 from urllib.parse import urljoin, urlparse
 from dotenv import load_dotenv
+
+from store_data import upload_many_blobs_with_transfer_manager
 load_dotenv(override=True)
 # Configuration
 BASE_URL = os.getenv('BASE_URL')
 MAX_DEPTH = int(os.getenv('MAX_DEPTH'))             # Maximum recursion depth (base URL is depth 0)
 CONCURRENT_REQUESTS = int(os.getenv('CONCURRENT_REQUESTS'))  # Maximum number of concurrent requests
-
+GOOGLE_APPLICATION_CREDENTIALS =os.getenv('GOOGLE_APPLICATION_CREDENTIALS ')
 # Create folder for JSON data
 DATA_FOLDER = "scraped_data"
 if not os.path.exists(DATA_FOLDER):
@@ -94,7 +96,11 @@ async def scrape_and_load():
     
 
 def scrape_and_load_task():
-    return asyncio.run(scrape_and_load())
+    asyncio.run(scrape_and_load())
+    upload_many_blobs_with_transfer_manager()
+    return
+
 
 if __name__ == '__main__':
     asyncio.run(scrape_and_load())
+    upload_many_blobs_with_transfer_manager()
