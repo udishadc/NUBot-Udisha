@@ -51,10 +51,40 @@ jobs:
       - name: Setup gcloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Docker login for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev
+
+      # Build & Push Backend Image
+      - name: Build and Push Backend Image
+        run: |
+          cd services/backend
+          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker-repo/backend-service:latest
+          docker build -t $IMAGE .
+          docker push $IMAGE
+          cd ../..
+
+      # Build & Push Frontend Image
+      - name: Build and Push Frontend Image
+        run: |
+          cd services/frontend
+          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker-repo/frontend-service:latest
+          docker build -t $IMAGE .
+          docker push $IMAGE
+          cd ../..
+
+      # Pull & Push MLflow Official Image
+      - name: Push MLflow Image
+        run: |
+          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker-repo/mlflow-service:latest
+          docker pull ghcr.io/mlflow/mlflow:latest
+          docker tag ghcr.io/mlflow/mlflow:latest $IMAGE
+          docker push $IMAGE
+
       - name: Success Message for cloud
         if: success()
-        run: echo "Connection done successfully"
+        run: echo "Connection and image push done successfully"
 
-      - name: failure Message for cloud
+      - name: Failure Message for cloud
         if: failure()
-        run: echo "Connection to gcloud failed"
+        run: echo "Connection to gcloud or Docker image push failed"

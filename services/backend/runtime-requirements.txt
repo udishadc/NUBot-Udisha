@@ -17,3 +17,4 @@ beautifulsoup4
 aiohttp
 flask-cors
 langchain-huggingface
+langfair
