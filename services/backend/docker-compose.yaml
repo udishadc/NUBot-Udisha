@@ -23,4 +23,4 @@ services:
     # depends_on:
     #   mlflow:
     #     condition: service_healthy
-    command: ./runscripts.sh
+    command: python main.py
