@@ -11,7 +11,7 @@ def scrape_all_urls_task():
 def dataSegmentation():
     return chunk_data()
 
-@flow()
+@flow(log_prints=True)
 def scraperflow():
     # Use the tasks within the flow
     scrape_all_urls_task()
@@ -20,8 +20,13 @@ def scraperflow():
 if __name__ == "__main__":
 # # Run the flow
 ## for cloud
-    #  scraperflow.serve(name="my-first-deployment",
-    #                   tags=["onboarding"],
+    # scraperflow.deploy(name="my-first-deployment",
+    #                    work_pool_name="dataflow",
+    #                    image='prefecthq/prefect:2-python3.10',
+    #                    push=True
     #                   )
+    try:
+        scraperflow()
+    except Exception as e:
+        print(e)
 
-    scraperflow()
