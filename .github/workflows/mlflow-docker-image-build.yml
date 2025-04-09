@@ -1,0 +1,27 @@
+name: "push_mlflow_image"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mlflow_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GCP Authentication
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.GCP_KEY }}"
+
+      - name: Setup gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Docker login for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev
+
+      - name: Pull and Push MLflow Image
+        run: |
+          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker/mlflow-service:latest
+          docker pull ghcr.io/mlflow/mlflow:latest
+          docker tag ghcr.io/mlflow/mlflow:latest $IMAGE
+          docker push $IMAGE
