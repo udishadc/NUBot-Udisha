@@ -1,11 +1,12 @@
 from functools import lru_cache
-from langchain import hub
+# from langchain import hub
 from langchain_core.documents import Document
 from langgraph.graph import START, StateGraph
 from typing_extensions import List, TypedDict
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.chat_models import init_chat_model
 from langchain_community.vectorstores import FAISS
+from langchain_core.prompts import PromptTemplate
 import getpass
 import os
 from dotenv import load_dotenv
@@ -23,21 +24,62 @@ MLFLOW_TRACKING_URI =os.environ.get("MLFLOW_TRACKING_URI")
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 FAISS_INDEX_FOLDER= os.getenv('FAISS_INDEX_FOLDER')
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)  # Remote MLflow Server
+# Where you currently have this line:
 mlflow.set_experiment("rag_experiment")
+def get_or_create_experiment(experiment_name):
+
+    # Check if experiment exists
+    try:
+        experiment = mlflow.get_experiment_by_name(experiment_name)
+        
+        if experiment is not None:
+            # Check if experiment is active (not deleted)
+            if experiment.lifecycle_stage == "active":
+                print(f"Found active experiment '{experiment_name}' with ID: {experiment.experiment_id}")
+                return experiment.experiment_id
+            else:
+                # Experiment exists but is deleted, create a new one with timestamp
+                new_name = f"{experiment_name}_{int(time.time())}"
+                experiment_id = mlflow.create_experiment(new_name)
+                print(f"Original experiment was deleted. Created new experiment '{new_name}' with ID: {experiment_id}")
+                return experiment_id
+        else:
+            # Create new experiment
+            experiment_id = mlflow.create_experiment(experiment_name)
+            print(f"Created new experiment '{experiment_name}' with ID: {experiment_id}")
+            return experiment_id
+    except Exception as e:
+        print(f"Error getting or creating experiment: {e}")
+        # Fallback - create a new experiment with timestamp
+        new_name = f"{experiment_name}_{int(time.time())}"
+        experiment_id = mlflow.create_experiment(new_name)
+        print(f"Created fallback experiment '{new_name}' with ID: {experiment_id}")
+        return experiment_id
+
+# Replace it with:
+experiment_id = get_or_create_experiment("rag_experiment")
+mlflow.set_experiment_tag("description", "RAG pipeline with Mistral AI model")
 if not os.environ.get("MISTRAL_API_KEY"):
   os.environ["MISTRAL_API_KEY"] = getpass.getpass("Enter API key for Mistral AI: ")
 
 @lru_cache(maxsize=None)
 def get_llm():
-    llm = init_chat_model("mistral-large-latest", model_provider="mistralai")
+    llm = init_chat_model("mistral-tiny-latest", model_provider="mistralai")
     return llm
 
 @lru_cache(maxsize=None)
 def get_prompt():
 # Define prompt for question-answering
-    prompt = hub.pull("rlm/rag-prompt")
-    return prompt
-
+    # Your prompt template
+    template = """Use the following pieces of context to answer the question at the end.
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+Use three sentences maximum and keep the answer as concise as possible.
+Always say "thanks for asking!" at the end of the answer.
+{context}
+Question: {question}
+Helpful Answer:"""
+    custom_rag_prompt = PromptTemplate.from_template(template)
+    return custom_rag_prompt
 
 # Define state for application
 class State(TypedDict):
@@ -71,7 +113,7 @@ for blob in bucket.list_blobs(prefix=FAISS_INDEX_FOLDER):
 vector_store = FAISS.load_local(FAISS_INDEX_FOLDER, embeddings, allow_dangerous_deserialization=True)
 # Define application steps
 def retrieve(state: State):
-    with mlflow.start_run(nested=True, run_name="retrieval"):
+    with mlflow.start_run(nested=True, run_name="retrieval",experiment_id=experiment_id):
         start_time = time.time()
         retrieved_docs = vector_store.similarity_search(state["question"])
         retrieval_time = time.time() - start_time
@@ -92,7 +134,7 @@ llm = get_llm()
 # Initialize prompt once and store in a global variable
 prompt = get_prompt()
 def generate(state: State):
-    with mlflow.start_run(nested=True, run_name="generation"):
+    with mlflow.start_run(nested=True, run_name="generation",experiment_id=experiment_id):
         start_time = time.time()
         docs_content = "\n\n".join(doc.page_content for doc in state["context"])
         token_count = len(docs_content.split()) 
@@ -106,7 +148,7 @@ def generate(state: State):
         # Log LLM generation performance
         mlflow.log_metric("generation_time", generation_time)
         mlflow.log_param("response_length", len(response.content.split()))
-        mlflow.log_param("model_name", "mistral-large-latest")
+        mlflow.log_param("model_name", "mistral-tiny-latest")
 
         # Save response
         # with open("response.txt", "w") as f:
@@ -119,7 +161,7 @@ def generate(state: State):
 def generateResponse(query):
 # Compile application and test
     try:
-         with mlflow.start_run(run_name="RAG_Pipeline"):
+         with mlflow.start_run(run_name="RAG_Pipeline",experiment_id=experiment_id):
             mlflow.log_param("query", query)
             graph_builder = StateGraph(State).add_sequence([retrieve, generate])
             graph_builder.add_edge(START, "retrieve")
@@ -133,7 +175,7 @@ def generateResponse(query):
     
 async def checkModel_fairness():
     auto_object = AutoEval(
-        prompts=["tell me about khoury"], 
+        prompts=["tell me about khoury college"], 
         langchain_llm=llm,
         # toxicity_device=device # uncomment if GPU is available
     )
