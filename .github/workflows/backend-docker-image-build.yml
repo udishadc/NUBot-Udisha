@@ -27,7 +27,7 @@ jobs:
       - name: Build and Push Backend Image
         run: |
           cd services/backend
-          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker/backend-service:latest
+          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-nubot/backend-service:latest
           docker build -t $IMAGE .
           docker push $IMAGE
           cd ../..

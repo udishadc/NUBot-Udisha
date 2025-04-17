@@ -27,7 +27,7 @@ jobs:
       - name: Build and Push Frontend Image
         run: |
           cd services/frontend
-          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker/frontend-service:latest
+          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-nubot/frontend-service:latest
           docker build -t $IMAGE .
           docker push $IMAGE
           cd ../..

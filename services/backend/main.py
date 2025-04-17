@@ -35,8 +35,10 @@ class Main(Resource):
     def post(self):
         """Return a simple message"""
         try:
-            parser.add_argument('query', required=True, help="Name cannot be blank!")
-            args=parser.parse_args()
+            parser.add_argument('query', type=str, required=True, location='json', help="Query is required")
+            args = parser.parse_args()
+            if not args['query']:
+                return {"error": "Query field is required"}, 400
             logging.info("Get api called")
             query=args['query']
             logging.info("response function called")

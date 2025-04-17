@@ -21,7 +21,7 @@ jobs:
 
       - name: Pull and Push MLflow Image
         run: |
-          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nubot-docker/mlflow-service:latest
+          IMAGE=${{ secrets.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend-nubot/mlflow-service:latest
           docker pull ghcr.io/mlflow/mlflow:latest
           docker tag ghcr.io/mlflow/mlflow:latest $IMAGE
           docker push $IMAGE
